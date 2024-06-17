@@ -84,8 +84,7 @@ const ViewExpenses = () => {
           Consultar gastos
         </h2>
         <p className="mb-4 text-gray-600 dark:text-gray-400">
-          Duis tristique est dolor, a vestibulum justo maximus at. Vivamus quis
-          quam ut felis mollis.
+          Aplicacion de gestión de gastos, creado por Fabri Ferroni
         </p>
       </div>
       <ul
