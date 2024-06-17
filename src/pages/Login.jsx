@@ -1,52 +1,111 @@
-import React, { useState } from 'react';
-import { supabase } from '../supabaseClient';
+import useLoginStore from "../zustand/login";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../supabase/auth";
+import toast from "react-hot-toast";
+import { useEffect } from "react";
+import { supabase } from "../supabaseClient";
 
 const Login = () => {
-  const [user, setUser] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  /* useEffect(() => {
+    if (supabase.auth.getUser()) {
+      navigate("/view-expenses");
+    }
+  }, [navigate]); */
+
+  const {
+    selectedEmail,
+    selectedPassword,
+    errors,
+    setSelectedEmail,
+    setSelectedPassword,
+    resetInputs,
+    validateInputs,
+  } = useLoginStore();
+
+  function toHome() {
+    resetInputs();
+    navigate("/view-expenses", { replace: true });
+  }
+
+  // Función para manejar el cambio de fecha
+  const handleEmail = ({ target }) => {
+    setSelectedEmail(target.value);
+  };
+
+  // Función para manejar el cambio de método de pago
+  const handlePassword = ({ target }) => {
+    setSelectedPassword(target.value);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signIn({ user, password });
+
+    if (!validateInputs()) {
+      return;
+    }
+
+    const data = {
+      email: selectedEmail,
+      password: selectedPassword,
+    };
+
+    const { error } = await loginUser(data);
+
     if (error) {
-      setError(error.message);
+      toast.error("Los datos ingresados son incorrectos, intente con otros.");
+      console.error("Error adding expense:", error);
     } else {
-      window.location.href = '/home';  // Redirigir a la página principal
+      resetInputs();
+      toast.success("Has iniciado sesión correctamente!");
+      toHome();
     }
   };
 
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+    <div className="flex min-h-full flex-1 flex-col justify-center  px-6 py-12 lg:py-32 lg:px-[40rem] mx-auto">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900 dark:text-gray-300">
           Control de Gastos MD
         </h2>
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={handleLogin}>
+        <form className="space-y-6" onSubmit={handleLogin} noValidate>
           <div>
-            <label htmlFor="user" className="block text-sm font-medium leading-6 text-gray-900">
-              Usuario
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-300"
+            >
+              Correo electrónico
             </label>
             <div className="mt-2">
               <input
-                id="user"
-                name="user"
-                type="user"
-                autoComplete="user"
-                required
-                value={user}
-                onChange={(e) => setUser(e.target.value)}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email-new"
+                placeholder="Ingresar el correo electrónico"
+                onChange={handleEmail}
+                className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
+                  errors.email
+                    ? "ring-red-500 border-red-500 dark:border-red-500 dark:focus:border-red-500 dark:ring-red-500"
+                    : "ring-gray-300"
+                } `}
               />
+              {errors.email && (
+                <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+              )}
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-300"
+              >
                 Contraseña
               </label>
             </div>
@@ -54,17 +113,21 @@ const Login = () => {
               <input
                 id="password"
                 name="password"
+                placeholder="Ingresar la contraseña"
                 type="password"
                 autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                onChange={handlePassword}
+                className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
+                  errors.password
+                    ? "ring-red-500 border-red-500 dark:border-red-500 dark:focus:border-red-500 dark:ring-red-500"
+                    : "ring-gray-300"
+                }`}
               />
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-600">{errors.password}</p>
+              )}
             </div>
           </div>
-
-          {error && <p className="mt-2 text-red-500">{error}</p>}
 
           <div>
             <button
@@ -76,7 +139,7 @@ const Login = () => {
           </div>
         </form>
 
-        <p className="mt-10 text-center text-sm text-gray-500">
+        <p className="mt-10 text-center text-sm text-gray-500 dark:text-gray-400">
           Acceso solo a personas autorizadas
         </p>
       </div>
@@ -85,4 +148,3 @@ const Login = () => {
 };
 
 export default Login;
-
