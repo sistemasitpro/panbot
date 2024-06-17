@@ -11,6 +11,50 @@ export async function loginUser(data) {
   }
 }
 
+export function loggedUser(callback) {
+  try {
+    return supabase.auth.onAuthStateChange((event, session) => {
+      callback({ event, session });
+    });
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function getCurrentUser() {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function getSessionUser() {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return session;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function updateUser(email, data, password) {
+  try {
+    return await supabase.auth.updateUser({
+      email,
+      data,
+      password,
+    });
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 export async function signOutUser() {
   try {
     return await supabase.auth.signOut({ scope: "local" });

@@ -8,6 +8,14 @@ export async function getAllExpenses() {
   }
 }
 
+export async function getAllExpensesByUserLogged(userId) {
+  try {
+    return await supabase.from("expenses").select("*").eq("usuario_id", userId);
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 export async function getExpenseById(id) {
   try {
     return await supabase.from("expenses").select("*").eq("id", id).single();

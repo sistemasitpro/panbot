@@ -4,9 +4,12 @@ import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
 import { deleteExpense, getAllExpenses } from "../supabase/expenses";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 const ViewExpenses = () => {
+  const navigate = useNavigate();
+
   const [expenses, setExpenses] = useState([]);
   const [modalExpenseId, setModalExpenseId] = useState(null);
 
@@ -21,6 +24,12 @@ const ViewExpenses = () => {
   useEffect(() => {
     fetchExpenses();
   }, []);
+
+  useEffect(() => {
+    if (!supabase.auth.getUser()) {
+      navigate("/");
+    }
+  }, [navigate]);
 
   const fetchExpenses = async () => {
     const { data, error } = await getAllExpenses();

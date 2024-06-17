@@ -2,10 +2,15 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import useExpenseStore from "../zustand/add.expense";
 import { createNewExpense } from "../supabase/expenses";
+import { supabase } from "../supabaseClient";
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "../supabase/auth";
 
 // Componente para agregar gastos
 const AddExpense = () => {
   const navigate = useNavigate();
+
+  const [userId, setUserId] = useState("");
 
   const {
     selectedDate,
@@ -26,8 +31,23 @@ const AddExpense = () => {
     navigate("/view-expenses", { replace: true });
   }
 
+  useEffect(() => {
+    if (!supabase.auth.getUser()) {
+      navigate("/");
+    }
+  }, [navigate]);
+
   const date = new Date();
   const hoy = date.toISOString().split("T")[0];
+
+  useEffect(() => {
+    const getUser = async () => {
+      const user = await getCurrentUser();
+      setUserId(user.id);
+    };
+
+    getUser();
+  }, []);
 
   // Función para manejar el cambio de fecha
   const handleDateChange = ({ target }) => {
@@ -62,6 +82,7 @@ const AddExpense = () => {
       payment_method: selectedPaymentMethod,
       amount: selectedAmount,
       description: selectedDescription,
+      usuario_id: userId,
     };
 
     const { error } = await createNewExpense(data);

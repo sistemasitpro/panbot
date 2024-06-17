@@ -1,13 +1,16 @@
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import useExpenseStore from "../zustand/add.expense";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { editExpense, getExpenseById } from "../supabase/expenses";
+import { supabase } from "../supabaseClient";
+import { getCurrentUser } from "../supabase/auth";
 
 // Componente para editar gastos
 const EditExpense = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [userId, setUserId] = useState("");
 
   const {
     selectedDate,
@@ -27,6 +30,21 @@ const EditExpense = () => {
     resetInputs();
     navigate("/view-expenses");
   }, [navigate, resetInputs]);
+
+  useEffect(() => {
+    if (!supabase.auth.getUser()) {
+      navigate("/");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const user = await getCurrentUser();
+      setUserId(user.id);
+    };
+
+    getUser();
+  }, []);
 
   useEffect(() => {
     // Cargar los datos del gasto cuando el componente se monta
@@ -91,6 +109,7 @@ const EditExpense = () => {
       payment_method: selectedPaymentMethod,
       amount: selectedAmount,
       description: selectedDescription,
+      usuario_id: userId,
     };
 
     const { error } = await editExpense(id, data);

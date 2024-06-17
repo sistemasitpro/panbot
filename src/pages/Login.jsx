@@ -2,9 +2,17 @@ import useLoginStore from "../zustand/login";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../supabase/auth";
 import toast from "react-hot-toast";
+import { useEffect } from "react";
+import { supabase } from "../supabaseClient";
 
 const Login = () => {
   const navigate = useNavigate();
+
+  /* useEffect(() => {
+    if (supabase.auth.getUser()) {
+      navigate("/view-expenses");
+    }
+  }, [navigate]); */
 
   const {
     selectedEmail,
