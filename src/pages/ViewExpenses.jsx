@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
 import jsPDF from "jspdf";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
+import { deleteExpense, getAllExpenses } from "../supabase/expenses";
+import { Link } from "react-router-dom";
 
 const ViewExpenses = () => {
   const [expenses, setExpenses] = useState([]);
@@ -22,8 +23,7 @@ const ViewExpenses = () => {
   }, []);
 
   const fetchExpenses = async () => {
-    const { data, error } = await supabase.from("expenses").select("*");
-    console.log(data);
+    const { data, error } = await getAllExpenses();
     if (error) {
       console.error("Error fetching expenses:", error);
     } else {
@@ -55,11 +55,8 @@ const ViewExpenses = () => {
     });
   }
 
-  const handleDeleteExpense = async (expenseId) => {
-    const { error } = await supabase
-      .from("expenses")
-      .delete()
-      .eq("id", expenseId);
+  const handleDeleteExpense = async (id) => {
+    const { error } = await deleteExpense(id);
 
     if (error) {
       toast.error("Upps... hubo un error, intente dentro un rato.");
@@ -72,12 +69,12 @@ const ViewExpenses = () => {
   };
 
   return (
-    <section className="flex flex-col  gap-3 px-6 py-12">
+    <section className="flex flex-col gap-3 px-6 py-12">
       <div className="max-w-xl mx-auto text-center xl:max-w-2xl">
-        <h2 className="text-3xl font-bold leading-tight text-gray-800 sm:text-4xl xl:text-5xl mb-6">
+        <h2 className="text-3xl font-bold leading-tight text-gray-800 dark:text-gray-200 sm:text-4xl xl:text-5xl mb-6">
           Consultar gastos
         </h2>
-        <p className="mb-4 text-gray-600">
+        <p className="mb-4 text-gray-600 dark:text-gray-400">
           Duis tristique est dolor, a vestibulum justo maximus at. Vivamus quis
           quam ut felis mollis.
         </p>
@@ -89,12 +86,12 @@ const ViewExpenses = () => {
         {expenses.map((expense) => (
           <li
             key={expense.id}
-            className="col-span-1 divide-y border border-gray-300 divide-gray-300 rounded-lg bg-white shadow"
+            className="col-span-1 divide-y border border-gray-300 divide-gray-300 dark:border-gray-800 dark:divide-gray-800 rounded-lg bg-white dark:bg-gray-900 shadow"
           >
             <div className="flex w-full items-center justify-between space-x-6 p-6">
               <div className="flex-1 truncate">
                 <div className="flex items-center space-x-3">
-                  <h3 className="truncate text-sm font-medium text-gray-900">
+                  <h3 className="truncate text-sm font-medium text-gray-900 dark:text-gray-200">
                     ${formatearPrecio(expense.amount)} -{" "}
                     {convertirFecha(expense.date)}
                   </h3>
@@ -108,34 +105,34 @@ const ViewExpenses = () => {
                     {expense.payment_method}
                   </span>
                 </div>
-                <p className="mt-1 truncate text-sm text-gray-500">
+                <p className="mt-1 truncate text-sm text-gray-500 dark:text-gray-400">
                   {expense.description}
                 </p>
               </div>
               <img
                 className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
-                src="../../public/logo-gastos.png"
+                src="/logo-gastos.png"
                 alt=""
               />
             </div>
             <div>
-              <div className="-mt-px flex divide-x divide-gray-300">
+              <div className="-mt-px flex divide-x divide-gray-300 dark:divide-gray-800">
                 <div className="flex w-0 flex-1">
-                  <a
-                    href={`/edit-expense/${expense.id}`}
-                    className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900 hover:bg-blue-500 hover:text-white group"
+                  <Link
+                    to={`/edit-expense/${expense.id}`}
+                    className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900 dark:text-gray-300 hover:bg-blue-500 hover:text-white group"
                   >
                     <PencilIcon
                       className="h-5 w-5 text-gray-400 group-hover:text-white"
                       aria-hidden="true"
                     />
                     Editar
-                  </a>
+                  </Link>
                 </div>
                 <div className="-ml-px flex w-0 flex-1">
                   <a
                     onClick={() => handleOpenModal(expense.id)}
-                    className="relative cursor-pointer inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900 hover:bg-red-500 hover:text-white group"
+                    className="relative cursor-pointer inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900 dark:text-gray-300 hover:bg-red-500 hover:text-white group"
                   >
                     <TrashIcon
                       className="h-5 w-5 text-gray-400 group-hover:text-white"

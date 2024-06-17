@@ -5,6 +5,7 @@ import ViewExpenses from "./pages/ViewExpenses";
 import { Toaster } from "react-hot-toast";
 import Nav from "./templates/Nav";
 import EditExpense from "./pages/EditExpense";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
           <Route path="/edit-expense/:id" element={<EditExpense />} />
           <Route index path="/view-expenses" element={<ViewExpenses />} />
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster
         position="top-right"

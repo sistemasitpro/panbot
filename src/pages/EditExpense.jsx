@@ -1,10 +1,12 @@
-import { supabase } from "../supabaseClient";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useExpenseStore from "../zustand/add.expense";
+import { useCallback, useEffect } from "react";
+import { editExpense, getExpenseById } from "../supabase/expenses";
 
-// Componente para agregar gastos
+// Componente para editar gastos
 const EditExpense = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const {
@@ -21,10 +23,37 @@ const EditExpense = () => {
     validateInputs,
   } = useExpenseStore();
 
-  function toHome() {
+  const toHome = useCallback(() => {
     resetInputs();
     navigate("/view-expenses");
-  }
+  }, [navigate, resetInputs]);
+
+  useEffect(() => {
+    // Cargar los datos del gasto cuando el componente se monta
+    const fetchExpense = async () => {
+      const { data, error } = await getExpenseById(id);
+
+      if (error || !data) {
+        toast.error("El gasto que intentas editar no existe. Prueba con otro");
+        console.error("Error fetching expense:", error);
+        toHome();
+      } else {
+        setSelectedDate(data.date);
+        setSelectedPaymentMethod(data.payment_method);
+        setSelectedAmount(data.amount);
+        setSelectedDescription(data.description);
+      }
+    };
+
+    fetchExpense();
+  }, [
+    id,
+    setSelectedDate,
+    setSelectedPaymentMethod,
+    setSelectedAmount,
+    setSelectedDescription,
+    toHome,
+  ]);
 
   const date = new Date();
   const hoy = date.toISOString().split("T")[0];
@@ -64,14 +93,14 @@ const EditExpense = () => {
       description: selectedDescription,
     };
 
-    const { error } = await supabase.from("expenses").insert([data]);
+    const { error } = await editExpense(id, data);
 
     if (error) {
       toast.error("Upps... hubo un error, intente dentro un rato.");
       console.error("Error adding expense:", error);
     } else {
       resetInputs();
-      toast.success("Gasto añadido correctamente!");
+      toast.success("Se ha editado correctamente el gasto!");
       toHome();
     }
   };
@@ -81,14 +110,14 @@ const EditExpense = () => {
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:py-32 lg:px-[40rem] ">
       <form
         onSubmit={handleAddExpense}
-        className="flex flex-col justify-center items-center w-full border border-gray-300 rounded-md py-8"
+        className="flex flex-col justify-center items-center w-full border border-gray-300 dark:border-gray-700 rounded-md py-8"
       >
         <div className="space-y-12 px-4 lg:px-16">
           <div className="">
-            <h2 className="text-base font-semibold leading-7 text-gray-900">
+            <h2 className="text-base font-semibold leading-7 text-gray-900  dark:text-gray-200">
               Editar gasto
             </h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
+            <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
               Formulario para guardar gasto mensual.
             </p>
           </div>
@@ -98,7 +127,7 @@ const EditExpense = () => {
               <div className="sm:col-span-3">
                 <label
                   htmlFor="date"
-                  className="block text-sm font-medium leading-6 text-gray-900"
+                  className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
                 >
                   Fecha
                 </label>
@@ -107,15 +136,16 @@ const EditExpense = () => {
                     placeholder="dd/mm/yyyy"
                     type="date"
                     min={hoy}
+                    value={selectedDate}
                     onChange={handleDateChange}
                     name="date"
                     id="date"
                     autoComplete="date-price"
-                    className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ${
+                    className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500  ${
                       errors.date
-                        ? "ring-red-500 border-red-500"
+                        ? "ring-red-500 border-red-500 dark:border-red-500 dark:focus:border-red-500 dark:ring-red-500"
                         : "ring-gray-300"
-                    } placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
+                    }`}
                   />
                   {errors.date && (
                     <p className="mt-2 text-sm text-red-600">{errors.date}</p>
@@ -126,7 +156,7 @@ const EditExpense = () => {
               <div className="sm:col-span-3">
                 <label
                   htmlFor="payment"
-                  className="block text-sm font-medium leading-6 text-gray-900"
+                  className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
                 >
                   Metodo de pago
                 </label>
@@ -135,11 +165,11 @@ const EditExpense = () => {
                     id="payment"
                     name="payment"
                     autoComplete="payment-method"
-                    className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ${
+                    className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500  ${
                       errors.paymentMethod
-                        ? "ring-red-500 border-red-500"
+                        ? "ring-red-500 border-red-500 dark:border-red-500 dark:focus:border-red-500 dark:ring-red-500"
                         : "ring-gray-300"
-                    } placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
+                    }`}
                     value={selectedPaymentMethod}
                     onChange={handlePaymentMethodChange}
                   >
@@ -158,7 +188,7 @@ const EditExpense = () => {
               <div className="col-span-full">
                 <label
                   htmlFor="amount"
-                  className="block text-sm font-medium leading-6 text-gray-900"
+                  className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
                 >
                   Total
                 </label>
@@ -169,14 +199,15 @@ const EditExpense = () => {
                     min={0}
                     step={1}
                     onChange={handleAmountChange}
+                    value={selectedAmount}
                     name="amount"
                     id="amount"
                     autoComplete="amount-price"
-                    className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ${
+                    className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500  ${
                       errors.amount
-                        ? "ring-red-500 border-red-500"
+                        ? "ring-red-500 border-red-500 dark:border-red-500 dark:focus:border-red-500 dark:ring-red-500"
                         : "ring-gray-300"
-                    } placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
+                    }`}
                   />
                   {errors.amount && (
                     <p className="mt-2 text-sm text-red-600">{errors.amount}</p>
@@ -187,7 +218,7 @@ const EditExpense = () => {
               <div className="col-span-full">
                 <label
                   htmlFor="description"
-                  className="block text-sm font-medium leading-6 text-gray-900"
+                  className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
                 >
                   Descripción
                 </label>
@@ -197,12 +228,12 @@ const EditExpense = () => {
                     name="description"
                     rows={3}
                     onChange={handleDescriptionChange}
+                    value={selectedDescription}
                     placeholder="Ingrese una descripción"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 resize-none"
-                    defaultValue={""}
+                    className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500  `}
                   />
                 </div>
-                <p className="mt-3 text-sm leading-6 text-gray-600">
+                <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
                   Escribe algunas frases para la descripción.
                 </p>
               </div>
@@ -213,7 +244,7 @@ const EditExpense = () => {
         <div className="flex items-center justify-end gap-x-6">
           <button
             type="button"
-            className="rounded-md bg-transparent border border-gray-500 text-gray-900 px-3 py-2 text-sm font-semibold hover:text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
+            className="rounded-md bg-transparent border border-gray-500 text-gray-900 dark:text-gray-300 px-3 py-2 text-sm font-semibold hover:text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
             onClick={toHome}
           >
             Cancelar

@@ -6,7 +6,7 @@ const Modal = ({ onClose, expenseId, onDelete }) => {
 
   return (
     <div className="fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.55)] overflow-auto font-[sans-serif]">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6 relative">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 relative">
         <div className="my-8 text-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -22,7 +22,7 @@ const Modal = ({ onClose, expenseId, onDelete }) => {
               data-original="#000000"
             />
           </svg>
-          <h4 className="text-gray-800 text-lg font-semibold mt-4">
+          <h4 className="text-gray-800 dark:text-gray-200 text-lg font-semibold mt-4">
             ¿Estás seguro/a de que quieres eliminarlo?
           </h4>
         </div>
@@ -38,7 +38,7 @@ const Modal = ({ onClose, expenseId, onDelete }) => {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-gray-800 text-sm tracking-wide bg-gray-200 hover:bg-gray-300 active:bg-gray-200"
+            className="px-4 py-2 rounded-lg text-gray-800 dark:text-gray-200 text-sm tracking-wide bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-700 active:bg-gray-200"
           >
             Cancelar
           </button>
