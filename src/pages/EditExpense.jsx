@@ -1,15 +1,15 @@
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useExpenseStore from "../zustand/add.expense";
-import { createNewExpense } from "../supabase/expenses";
+import { useCallback, useEffect, useState } from "react";
+import { editExpense, getExpenseById } from "../supabase/expenses";
 import { supabase } from "../supabaseClient";
-import { useEffect, useState } from "react";
 import { getCurrentUser } from "../supabase/auth";
 
-// Componente para agregar gastos
-const AddExpense = () => {
+// Componente para editar gastos
+const EditExpense = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-
   const [userId, setUserId] = useState("");
 
   const {
@@ -26,19 +26,16 @@ const AddExpense = () => {
     validateInputs,
   } = useExpenseStore();
 
-  function toHome() {
+  const toHome = useCallback(() => {
     resetInputs();
-    navigate("/view-expenses", { replace: true });
-  }
+    navigate("/view-expenses");
+  }, [navigate, resetInputs]);
 
   useEffect(() => {
     if (!supabase.auth.getUser()) {
       navigate("/");
     }
   }, [navigate]);
-
-  const date = new Date();
-  const hoy = date.toISOString().split("T")[0];
 
   useEffect(() => {
     const getUser = async () => {
@@ -48,6 +45,36 @@ const AddExpense = () => {
 
     getUser();
   }, []);
+
+  useEffect(() => {
+    // Cargar los datos del gasto cuando el componente se monta
+    const fetchExpense = async () => {
+      const { data, error } = await getExpenseById(id);
+
+      if (error || !data) {
+        toast.error("El gasto que intentas editar no existe. Prueba con otro");
+        console.error("Error fetching expense:", error);
+        toHome();
+      } else {
+        setSelectedDate(data.date);
+        setSelectedPaymentMethod(data.payment_method);
+        setSelectedAmount(data.amount);
+        setSelectedDescription(data.description);
+      }
+    };
+
+    fetchExpense();
+  }, [
+    id,
+    setSelectedDate,
+    setSelectedPaymentMethod,
+    setSelectedAmount,
+    setSelectedDescription,
+    toHome,
+  ]);
+
+  const date = new Date();
+  const hoy = date.toISOString().split("T")[0];
 
   // Función para manejar el cambio de fecha
   const handleDateChange = ({ target }) => {
@@ -85,14 +112,14 @@ const AddExpense = () => {
       usuario_id: userId,
     };
 
-    const { error } = await createNewExpense(data);
+    const { error } = await editExpense(id, data);
 
     if (error) {
       toast.error("Upps... hubo un error, intente dentro un rato.");
       console.error("Error adding expense:", error);
     } else {
       resetInputs();
-      toast.success("Gasto añadido correctamente!");
+      toast.success("Se ha editado correctamente el gasto!");
       toHome();
     }
   };
@@ -106,8 +133,8 @@ const AddExpense = () => {
       >
         <div className="space-y-12 px-4 lg:px-16">
           <div className="">
-            <h2 className="text-base font-semibold leading-7 text-gray-900 dark:text-gray-200">
-              Agregar gastos
+            <h2 className="text-base font-semibold leading-7 text-gray-900  dark:text-gray-200">
+              Editar gasto
             </h2>
             <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
               Formulario para guardar gasto mensual.
@@ -128,6 +155,7 @@ const AddExpense = () => {
                     placeholder="dd/mm/yyyy"
                     type="date"
                     min={hoy}
+                    value={selectedDate}
                     onChange={handleDateChange}
                     name="date"
                     id="date"
@@ -190,6 +218,7 @@ const AddExpense = () => {
                     min={0}
                     step={1}
                     onChange={handleAmountChange}
+                    value={selectedAmount}
                     name="amount"
                     id="amount"
                     autoComplete="amount-price"
@@ -199,7 +228,6 @@ const AddExpense = () => {
                         : "ring-gray-300"
                     }`}
                   />
-
                   {errors.amount && (
                     <p className="mt-2 text-sm text-red-600">{errors.amount}</p>
                   )}
@@ -219,9 +247,9 @@ const AddExpense = () => {
                     name="description"
                     rows={3}
                     onChange={handleDescriptionChange}
+                    value={selectedDescription}
                     placeholder="Ingrese una descripción"
                     className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500  `}
-                    defaultValue={""}
                   />
                 </div>
                 <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
@@ -244,7 +272,7 @@ const AddExpense = () => {
             type="submit"
             className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            Agregar gasto
+            Editar gasto
           </button>
         </div>
       </form>
@@ -252,4 +280,4 @@ const AddExpense = () => {
   );
 };
 
-export default AddExpense;
+export default EditExpense;
