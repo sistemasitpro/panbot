@@ -94,7 +94,7 @@ const ViewExpenses = () => {
         {expenses.map((expense) => (
           <li
             key={expense.id}
-            className="col-span-1 divide-y border border-gray-300 divide-gray-300 dark:border-gray-800 dark:divide-gray-800 rounded-lg bg-white dark:bg-gray-900 shadow"
+            className="col-span-1 divide-y border border-gray-300 divide-gray-300 dark:border-gray-700 dark:divide-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-lg"
           >
             <div className="flex w-full items-center justify-between space-x-6 p-6">
               <div className="flex-1 truncate">
@@ -124,7 +124,7 @@ const ViewExpenses = () => {
               />
             </div>
             <div>
-              <div className="-mt-px flex divide-x divide-gray-300 dark:divide-gray-800">
+              <div className="-mt-px flex divide-x divide-gray-300 dark:divide-gray-700">
                 <div className="flex w-0 flex-1">
                   <Link
                     to={`/edit-expense/${expense.id}`}
@@ -167,7 +167,7 @@ const ViewExpenses = () => {
         <button
           onClick={handleExportPDF}
           type="button"
-          className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
         >
           Exportar PDF
         </button>
