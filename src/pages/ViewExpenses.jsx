@@ -100,7 +100,7 @@ const ViewExpenses = () => {
               <div className="flex-1 truncate">
                 <div className="flex items-center space-x-3">
                   <h3 className="truncate text-sm font-medium text-gray-900 dark:text-gray-200">
-                    ${formatearPrecio(expense.amount)} -{" "}
+                    {formatearPrecio(expense.amount)} € -{" "}
                     {convertirFecha(expense.date)}
                   </h3>
                   <span
