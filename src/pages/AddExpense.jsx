@@ -37,9 +37,6 @@ const AddExpense = () => {
     }
   }, [navigate]);
 
-  const date = new Date();
-  const hoy = date.toISOString().split("T")[0];
-
   useEffect(() => {
     const getUser = async () => {
       const user = await getCurrentUser();
@@ -132,7 +129,6 @@ const AddExpense = () => {
                     <input
                       placeholder="dd/mm/yyyy"
                       type="date"
-                      min={hoy}
                       onChange={handleDateChange}
                       name="date"
                       id="date"

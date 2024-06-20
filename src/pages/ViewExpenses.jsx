@@ -84,7 +84,15 @@ const ViewExpenses = () => {
           Consultar gastos
         </h2>
         <p className="mb-4 text-gray-600 dark:text-gray-400">
-          Aplicacion de gestión de gastos, creado por Fabri Ferroni
+          Aplicacion de gestión de gastos, creado por{" "}
+          <a
+            className="text-red-400 hover:text-red-500 hover:underline"
+            href="https://fabriziodev.ar"
+            rel="noopener noreferrer nofollow"
+            target="_blank"
+          >
+            Fabri Ferroni
+          </a>
         </p>
       </div>
       <ul
