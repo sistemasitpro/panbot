@@ -11,11 +11,9 @@ const EditUser = () => {
   const {
     selectedNombre,
     selectedApellido,
-    selectedEmail,
     errors,
     setSelectedNombre,
     setSelectedApellido,
-    setSelectedEmail,
     resetInputs,
     validateInputs,
   } = useUpdateUserStore();
@@ -36,11 +34,10 @@ const EditUser = () => {
       const user = await getCurrentUser();
       setSelectedNombre(user?.user_metadata?.nombre);
       setSelectedApellido(user?.user_metadata?.apellido);
-      setSelectedEmail(user?.email);
     };
 
     getUser();
-  }, [setSelectedNombre, setSelectedApellido, setSelectedEmail]);
+  }, [setSelectedNombre, setSelectedApellido]);
 
   const handleNombreChange = ({ target }) => {
     setSelectedNombre(target.value);
@@ -48,10 +45,6 @@ const EditUser = () => {
 
   const handleApellidoChange = ({ target }) => {
     setSelectedApellido(target.value);
-  };
-
-  const handleEmailChange = ({ target }) => {
-    setSelectedEmail(target.value);
   };
 
   const handleEditUser = async (e) => {
@@ -66,14 +59,14 @@ const EditUser = () => {
       apellido: selectedApellido,
     };
 
-    const { error } = await updateUser(selectedEmail, data);
+    const { error } = await updateUser(data);
 
     if (error) {
       toast.error("Upps... hubo un error, intente dentro un rato.");
       console.error("Error adding expense:", error);
     } else {
       resetInputs();
-      toast.success("Se ha editado correctamente el gasto!");
+      toast.success("Se ha editado correctamente el usuario!");
       toHome();
     }
   };
@@ -152,36 +145,6 @@ const EditUser = () => {
                     {errors.apellido && (
                       <p className="mt-2 text-sm text-red-600">
                         {errors.apellido}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="col-span-full">
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
-                  >
-                    Correo Electrónico
-                  </label>
-                  <div className="mt-2">
-                    <input
-                      type="email"
-                      placeholder="Ingrese el correo electrónico"
-                      onChange={handleEmailChange}
-                      value={selectedEmail}
-                      name="email"
-                      id="email"
-                      autoComplete="email-price"
-                      className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500  ${
-                        errors.email
-                          ? "ring-red-500 border-red-500 dark:border-red-500 dark:focus:border-red-500 dark:ring-red-500"
-                          : "ring-gray-300"
-                      }`}
-                    />
-                    {errors.email && (
-                      <p className="mt-2 text-sm text-red-600">
-                        {errors.email}
                       </p>
                     )}
                   </div>

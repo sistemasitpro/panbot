@@ -43,12 +43,10 @@ export async function getSessionUser() {
   }
 }
 
-export async function updateUser(email, data, password) {
+export async function updateUser(data) {
   try {
     return await supabase.auth.updateUser({
-      email,
       data,
-      password,
     });
   } catch (error) {
     throw new Error(error.message);
