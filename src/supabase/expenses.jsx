@@ -1,6 +1,6 @@
 import { supabase } from "../supabaseClient";
 
-const table = import.meta.env.VITE_SUPABASE_TABLE;
+const table = "expenses";
 
 export async function getAllExpenses() {
   try {

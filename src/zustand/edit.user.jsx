@@ -3,7 +3,6 @@ import create from "zustand";
 const useUpdateUserStore = create((set, get) => ({
   selectedNombre: "",
   selectedApellido: "",
-  selectedEmail: "",
   errors: {},
   setSelectedNombre: (nombre) => {
     set({
@@ -17,16 +16,10 @@ const useUpdateUserStore = create((set, get) => ({
       errors: { ...get().errors, apellido: "" },
     });
   },
-  setSelectedEmail: (email) =>
-    set({
-      selectedEmail: email,
-      errors: { ...get().errors, email: "" },
-    }),
   resetInputs: () =>
     set({
       selectedNombre: "",
       selectedApellido: "",
-      selectedEmail: "",
       errors: {},
     }),
   validateInputs: () => {
@@ -38,7 +31,6 @@ const useUpdateUserStore = create((set, get) => ({
       selectedRepitNewPassword,
     } = get();
     const errors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!selectedNombre) {
       errors.nombre = "El nombre es obligatorio";
@@ -46,12 +38,6 @@ const useUpdateUserStore = create((set, get) => ({
 
     if (!selectedApellido) {
       errors.apellido = "El apellido es obligatorio";
-    }
-
-    if (!selectedEmail) {
-      errors.email = "El correo electrónico es obligatorio";
-    } else if (!emailRegex.test(selectedEmail)) {
-      errors.email = "Formato de correo electrónico no válido";
     }
 
     set({ errors });
