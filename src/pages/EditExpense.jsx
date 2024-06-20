@@ -73,9 +73,6 @@ const EditExpense = () => {
     toHome,
   ]);
 
-  const date = new Date();
-  const hoy = date.toISOString().split("T")[0];
-
   // Función para manejar el cambio de fecha
   const handleDateChange = ({ target }) => {
     setSelectedDate(target.value);
@@ -156,7 +153,6 @@ const EditExpense = () => {
                     <input
                       placeholder="dd/mm/yyyy"
                       type="date"
-                      min={hoy}
                       value={selectedDate}
                       onChange={handleDateChange}
                       name="date"
